@@ -18,7 +18,6 @@ SciViews::R("explore", "model", "infer")
 data <-readxl::read_excel("data/Séquençage.xls")
 
 data_order <- arrange(data, desc(total))
-head(data_order)
 
 #Les 10 types de bactéries les plus présents sont:
 #   1. Aeromonas
@@ -32,3 +31,42 @@ head(data_order)
 #   9. Arcobacter
 #   10. Rhodoferax
 
+data_pca <- data %>%
+  column_to_rownames("genus") %>%  # Utiliser le genre comme nom de ligne
+  select(starts_with("barcode")) %>%  # Sélectionner uniquement les colonnes barcode
+  t() %>%  # Transposer
+  as.data.frame()
+
+data_pca_clean <- data_pca %>%
+  select(where(~var(., na.rm = TRUE) > 0))
+
+# Effectuer l'ACP
+commfin_pca <- data_pca_clean %>.%
+  pca(., scale = TRUE)
+
+summary(commfin_pca)
+
+
+data_pca %>.%
+select(., Actinomarinicola : Lactivibrio )%>.%
+pca(., scale=TRUE)
+
+data_corr <- correlation(data_pca)
+tabularise(data_corr)
+
+plot(data_corr)
+
+# Effectuer l'ACP
+commfin_pca <- pca(data = data_pca, scale = TRUE)
+
+# Résumé
+summary(commfin_pca)
+
+# Visualisations
+chart$scree(commfin_pca, fill = "#FFDBF3")
+
+chart$loadings(commfin_pca, max.overlaps=Inf)
+
+chart$scores(commfin_pca, max.overlaps=Inf)
+
+chart$biplot(commfin_pca)
