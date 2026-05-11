@@ -68,3 +68,4 @@ data_pca_clean %>.%
     scale_color_manual(values = colors_ordered) +
     labs(y = "Température moyenne standardisée", x = "pH standardisé")
   
+#Besoin de rajouter tableau avec les mesures sur les échantillons
