@@ -41,32 +41,30 @@ data_pca_clean <- data_pca %>%
   select(where(~var(., na.rm = TRUE) > 0))
 
 # Effectuer l'ACP
-commfin_pca <- data_pca_clean %>.%
-  pca(., scale = TRUE)
+data_pca_clean %>.%
+  pca(., scale = TRUE) -> dpca
 
-summary(commfin_pca)
-
-
-data_pca %>.%
-select(., Actinomarinicola : Lactivibrio )%>.%
-pca(., scale=TRUE)
-
-data_corr <- correlation(data_pca)
-tabularise(data_corr)
-
-plot(data_corr)
-
-# Effectuer l'ACP
-commfin_pca <- pca(data = data_pca, scale = TRUE)
-
-# Résumé
-summary(commfin_pca)
+summary(dpca)
 
 # Visualisations
-chart$scree(commfin_pca, fill = "#FFDBF3")
+chart$scree(dpca, fill = "#FFDBF3")
 
-chart$loadings(commfin_pca, max.overlaps=Inf)
+chart$loadings(dpca, max.overlaps=Inf)
 
-chart$scores(commfin_pca, max.overlaps=Inf)
+chart$scores(dpca, max.overlaps=Inf)
 
-chart$biplot(commfin_pca)
+chart$biplot(dpca)
+
+data_pca_clean %>.%
+  select(., Actinomarinicola:Lactivibrio)%>.%
+  profile_k(scale(.))
+
+  k_means(scale(data_pca_clean), k = 7) -> data_kmn
+
+  colors_ordered <- c("#E78AC3", "#98D33A", "#74BECB")
+  
+  chart(commfin_kmn, choices = c("pH", "Temperature mean (degrees C)"), alpha = 0.8) +
+    stat_ellipse() +
+    scale_color_manual(values = colors_ordered) +
+    labs(y = "Température moyenne standardisée", x = "pH standardisé")
+  
