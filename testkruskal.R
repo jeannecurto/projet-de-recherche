@@ -15,14 +15,24 @@ library(tidyr)
 
 data_long <- data %>%
   select(genus, starts_with("barcode")) %>%
+  filter(genus != "Unknown")%>%
   pivot_longer(cols = -genus, names_to = "station", values_to = "abondance")
 
 # Test Kruskal-Wallis
 kw_test <- kruskal.test(abondance ~ genus, data = data_long)
-print(kw_test)  # p-value indique si différences significatives
+# p-value indique si différences significatives
+tabularise(kw_test)
 
 # 2. VISUALISATION : Boîtes à moustaches des 10 genres
+
 library(ggplot2)
+
+top10_genres <- data_long %>%
+  group_by(genus) %>%
+  summarise(total_abondance = sum(abondance, na.rm = TRUE)) %>%
+  arrange(desc(total_abondance)) %>%
+  slice_head(n = 10) %>%
+  pull(genus)
 
 top10_data <- data_long %>%
   filter(genus %in% top10_genres) %>%
@@ -36,38 +46,35 @@ ggplot(top10_data, aes(x = genus, y = abondance, fill = genus)) +
     y = "Abondance", x = "Genre") +
   theme(legend.position = "none")
 
-# 4. TABLEAU RÉSUMÉ
-summary_stats <- data_long %>%
-  filter(genus %in% top10_genres) %>%
+# 3. RASTER : Abondance par genre et station
+# sur tout
+
+chart(top10_data, genus ~ station %fill=% abondance) +
+  geom_raster()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8))+
+  scale_fill_gradient2(low="white", mid="#98D33A", high="#46ACBE", midpoint=50000)
+
+
+# sur nos cultures
+
+data_long_culture <- data %>%
+  select(genus, barcode10:barcode19) %>%
+  filter(genus != "Unknown")%>%
+  pivot_longer(cols = -genus, names_to = "station", values_to = "abondance")
+
+top10_genres_culture <- data_long_culture %>%
   group_by(genus) %>%
-  summarise(
-    moyenne = mean(abondance, na.rm = TRUE),
-    mediane = median(abondance, na.rm = TRUE),
-    ecart_type = sd(abondance, na.rm = TRUE),
-    min = min(abondance, na.rm = TRUE),
-    max = max(abondance, na.rm = TRUE),
-    .groups = 'drop'
-  ) %>%
-  arrange(desc(moyenne))
+  summarise(total_abondance = sum(abondance, na.rm = TRUE)) %>%
+  arrange(desc(total_abondance)) %>%
+  slice_head(n = 10) %>%
+  pull(genus)
 
-print(summary_stats)
-
-# 5. TEST ANOVA (paramétrique alternative)
-anova_result <- aov(abondance ~ genus, data = filter(data_long, genus %in% top10_genres))
-summary(anova_result)
-
-# 6. HEATMAP : Abondance par genre et station
-
-install.packages("pheatmap")
-
-library(pheatmap)
-
-heatmap_data <- data %>%
+top10_data_culture <- data_long_culture %>%
   filter(genus %in% top10_genres) %>%
-  column_to_rownames(var = "genus") %>%
-  select(starts_with("barcode"))
+  mutate(genus = factor(genus, levels = top10_genres))
 
-pheatmap(heatmap_data,
-  main = "Heatmap : Abondance des 10 genres par station",
-  scale = "row",
-  color = colorRampPalette(c("lightgreen", "white", "skyblue"))(50))
+top10_data_culture %>.%
+chart(., genus ~ station %fill=% abondance) +
+  geom_raster()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
+  scale_fill_gradient2(low="white", mid="#98D33A", high="#46ACBE", midpoint=50000)
