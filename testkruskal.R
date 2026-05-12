@@ -71,8 +71,8 @@ top10_genres_culture <- data_long_culture %>%
   pull(genus)
 
 top10_data_culture <- data_long_culture %>%
-  filter(genus %in% top10_genres) %>%
-  mutate(genus = factor(genus, levels = top10_genres))
+  filter(genus %in% top10_genres_culture) %>%
+  mutate(genus = factor(genus, levels = top10_genres_culture))
 
 top10_data_culture %>.%
 chart(., genus ~ station %fill=% abondance) +
