@@ -51,8 +51,9 @@ ggplot(top10_data, aes(x = genus, y = abondance, fill = genus)) +
 
 chart(top10_data, genus ~ station %fill=% abondance) +
   geom_raster()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8))+
-  scale_fill_gradient2(low="white", mid="#98D33A", high="#46ACBE", midpoint=50000)
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8), axis.title.y=element_blank(), axis.title.x=element_blank())+
+  scale_fill_gradient2(low="white", mid="#98D33A", high="#46ACBE", midpoint=50000)+
+  labs(title= "Abondance des 10 genres")
 
 
 # sur nos cultures
@@ -76,5 +77,7 @@ top10_data_culture <- data_long_culture %>%
 top10_data_culture %>.%
 chart(., genus ~ station %fill=% abondance) +
   geom_raster()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
+  labs(title= "Abondance des 10 genres dans les différents milieux de culture")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), axis.title.x=element_blank(), axis.title.y=element_blank(), plot.title=element_text(size=10))+
   scale_fill_gradient2(low="white", mid="#98D33A", high="#46ACBE", midpoint=50000)
+
