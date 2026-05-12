@@ -32,56 +32,8 @@ data_order <- arrange(data, desc(total))
 #   9. Arcobacter
 #   10. Rhodoferax
 
-data_pca <- data %>.%
-  column_to_rownames(., "genus") %>%
-  select(starts_with("barcode")) %>.%
-  t(.) %>.%  # Transposer
-  as.data.frame(.)
 
-mesures_t <- mesures %>.%
-  column_to_rownames(., "variables") %>.%
-  t(.) %>.%
-  as.data.frame(.)
-
-data_pca_clean <- data_pca %>%
-  select(where(~var(., na.rm = TRUE) > 0))
-
-#ACP
-
-data_pca_clean %>.%
-  pca(., scale = TRUE) -> dpca
-
-summary(dpca)
-
-chart$scree(dpca, fill = "#FFDBF3")
-
-chart$loadings(dpca, max.overlaps=Inf)
-
-chart$scores(dpca, max.overlaps=Inf)
-
-chart$biplot(dpca)
-
-#KMEANS
-
-mesures_t %>.%
-  select(., Actinomarinicola:Lactivibrio)%>.%
-  profile_k(scale(.))
-
-  k_means(scale(data_pca_clean), k = 7) -> data_kmn
-
-  colors_ordered <- c("#E78AC3", "#98D33A", "#74BECB", "#bc80bd", "#fdb462", "#ffed6f", "#d9d9d9")
-  
-  chart(data_kmn, choices = c("Aeromonas", "Rhodoferax"), alpha = 0.8) +
-    stat_ellipse() +
-    scale_color_manual(values = colors_ordered)
-  
-#Besoin de rajouter tableau avec les mesures sur les échantillons
-
-
-
-  # =========================
   # ACP des stations
-  # =========================
   
   # 1. Garder uniquement les colonnes barcode
   data_num <- data[, grep("barcode", names(data))]
@@ -122,7 +74,7 @@ mesures_t %>.%
   fviz_pca_ind(pca,
     repel = TRUE,
     title = "ACP des stations",
-    col.ind = "#74BECB")
+    col.ind = "#46ACBE")
 
   
   library(ggplot2)
@@ -138,14 +90,16 @@ mesures_t %>.%
   
   pca_df$groupe[pca_df$station %in% c("barcode05","barcode07","barcode08","barcode09")] <- "Groupe2"
   pca_df$groupe[pca_df$station %in% c("barcode03","barcode04")] <- "Groupe3"
-  
-    # Graphique avec ellipses
-  ggplot(pca_df, aes(x = PC1, y = PC2, color = groupe)) +
-    geom_point(size = 3) +
-    geom_text(aes(label = station), vjust = -1) +
-    stat_ellipse(level = 0.95) +
-    scale_color_manual(values = colors_ordered)+
-    theme_minimal() +
-    theme(legend.position = "none") +
-    labs(title = "ACP des stations avec ellipses")  
-  
+
+# Graphique avec ellipses
+
+colors_ordered <- c("#E78AC3", "#98D33A", "#46ACBE", "#bc80bd", "#fdb462", "#ffed6f", "#d9d9d9")
+
+ggplot(pca_df, aes(x = PC1, y = PC2, color = groupe)) +
+  geom_point(size = 3) +
+  geom_text(aes(label = station), vjust = -1) +
+  stat_ellipse(level = 0.95) +
+  scale_color_manual(values = colors_ordered)+
+  theme_minimal() +
+  theme(legend.position = "none") +
+  labs(title = "ACP des stations avec ellipses", x = "Dim1 (26,4%)", y = "Dim2 (17,4%)")
