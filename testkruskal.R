@@ -21,6 +21,7 @@ data_long <- data %>%
 # Test Kruskal-Wallis
 kw_test <- kruskal.test(abondance ~ genus, data = data_long)
 # p-value indique si différences significatives
+kw_test
 tabularise(kw_test)
 
 # 2. VISUALISATION : Boîtes à moustaches des 10 genres
