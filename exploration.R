@@ -103,3 +103,27 @@ ggplot(pca_df, aes(x = PC1, y = PC2, color = groupe)) +
   theme_minimal() +
   theme(legend.position = "none") +
   labs(title = "ACP des stations avec ellipses", x = "Dim1 (26,4%)", y = "Dim2 (17,4%)")
+
+
+pca_df$groupe [pca_df$station %in% c("barcode01","barcode02","barcode03","barcode04", "barcode05", "barcode06")] <- "Eaux"
+
+pca_df$groupe[pca_df$station %in% c("barcode07","barcode08","barcode09")] <- "Sédiments"
+
+pca_df$groupe[pca_df$station %in% c("barcode11","barcode12","barcode13","barcode14", "barcode15", "barcode16", "barcode17","barcode18","barcode19")] <- "Cultures"
+
+library(ggplot2)
+library(ggrepel)
+
+ggplot(pca_df, aes(x = PC1, y = PC2, color = groupe)) +
+  geom_point(size = 3) +
+  geom_text_repel(aes(label = station)) +
+  theme_minimal() +
+  scale_color_manual(values = c(
+    "Eaux" = "#bc80bd",
+    "Sédiments" = "#fdb462",
+    "Cultures" = "#ffed6f"
+  )) +
+  labs(
+    title = "ACP des stations",
+    color = "Groupes"
+  )
