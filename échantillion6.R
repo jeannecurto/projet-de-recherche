@@ -40,7 +40,8 @@ chart(data=top20_data_05_col, abondance~ genus %fill=% type)+
 
 data%>.%
   select(., "genus", "barcode05","family")%>.%
-  filter(., genus != "Unknown", family=="Enterobacteriaceae") %>.%
+  data %>%
+  filter(., family %in% c("Clostridiaceae", "Enterococcaceae") | (family == "Enterobacteriaceae" & genus == "Escherichia"))%>.%
   pivot_longer(., cols = barcode05, names_to = "station", values_to = "abondance") -> data_entero_05
 
 data_entero_05 %>%
@@ -55,10 +56,9 @@ chart(data=data_entero_order_05, abondance ~ fct_reorder(genus, abondance, .desc
   geom_col()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
   scale_fill_manual(values = c(
-    "E.coli" = "#46ACBE",
-    "Coliformes" = "#E78AC3"
+    "E.coli" = "#46ACBE"
   )) +
-  labs(fill = "Type bactérien", title="Types de coliformes")+
+  labs(fill = "Type bactérien", title="Abondance des indicateurs de contamination bactérienne")+
   theme(axis.title.x=element_blank())
 
 # 15
@@ -99,7 +99,7 @@ chart(data=top20_data_15_col, abondance~ genus %fill=% type)+
 
 data%>.%
   select(., "genus", "barcode15","family")%>.%
-  filter(., genus != "Unknown", family=="Enterobacteriaceae") %>.%
+  filter(., family %in% c("Clostridiaceae", "Enterococcaceae") | (family == "Enterobacteriaceae" & genus == "Escherichia")) %>.%
   pivot_longer(., cols = barcode15, names_to = "station", values_to = "abondance") -> data_entero_15
 
 data_entero_15 %>%
@@ -114,8 +114,7 @@ chart(data=data_entero_order_15, abondance ~ fct_reorder(genus, abondance, .desc
   geom_col()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
   scale_fill_manual(values = c(
-    "E.coli" = "#46ACBE",
-    "Coliformes" = "#E78AC3"
+    "E.coli" = "#46ACBE"
   )) +
   labs(fill = "Type bactérien", title="Échantillon n°6 en aérobie")+
   theme(axis.title.x=element_blank())
@@ -158,7 +157,7 @@ chart(data=top20_data_18_col, abondance~ genus %fill=% type)+
 
 data%>.%
   select(., "genus", "barcode18","family")%>.%
-  filter(., genus != "Unknown", family=="Enterobacteriaceae") %>.%
+  filter(., family %in% c("Clostridiaceae", "Enterococcaceae") | (family == "Enterobacteriaceae" & genus == "Escherichia")) %>.%
   pivot_longer(., cols = barcode18, names_to = "station", values_to = "abondance") -> data_entero_18
 
 data_entero_18 %>%
@@ -173,18 +172,17 @@ chart(data=data_entero_order_18, abondance ~ fct_reorder(genus, abondance, .desc
   geom_col()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
   scale_fill_manual(values = c(
-    "E.coli" = "#46ACBE",
-    "Coliformes" = "#E78AC3"
+    "E.coli" = "#46ACBE"
   )) +
   labs(fill = "Type bactérien", title="Échantillon n°6 en fermentation")+
   theme(axis.title.x=element_blank())
 
 data%>.%
   select(., barcode05, barcode15, barcode18, family, genus)%>.%
-  filter(., family == "Enterobacteriaceae")%>.%
+  filter(., family %in% c("Clostridiaceae", "Enterococcaceae") | (family == "Enterobacteriaceae" & genus == "Escherichia"))%>.%
   pivot_longer(.,cols = c("barcode05", "barcode15", "barcode18"), names_to="station", values_to="abondance")-> data_ech6
 
 
 chart(data_ech6, log(abondance)~station %fill=% abondance)+
   geom_col(fill="#79B15B")+
-  labs(title="Présence de coliformes")
+  labs(title="Évolution de l'abondance bactérienne selon les conditions de mise en culture")
